@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rider Tracker Pro</title>
-    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlJpZGVyIFRyYWNrZXIgUHJvIiwKICAic2hvcnRfbmFtZSI6ICJSaWRlciBUcmFja2VyIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMxMjEyMTIiLAogICJ0aGVtZV9jb2xvciI6IiMxMjEyMTIiCn0=">
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlJpZGVyIFRyYWNrZXIgUHJvIiwKICAic2hvcnRfbmFtZSI6ICJSaWRlciBUcmFja2VyIiwKICAic3RhcnRfdXJsIjogIi4vaW5kZXguaHRtbCIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzEyMTIxMiIsCiAgInRoZW1lX2NvbG9yIjogIiMxMjEyMTIiCn0=">
     
     <style>
         body {
@@ -61,13 +61,12 @@
         .btn-start { background-color: #00e676; color: #121212; }
         .btn-stop { background-color: #ff5252; color: white; }
         
-        /* ปุ่มติดตั้งยึดให้อยู่ล่างสุด */
         .btn-install { 
             background-color: #ff9100; 
             color: #121212; 
             font-size: 1rem;
             padding: 10px;
-            margin-top: auto; /* ดันลงไปล่างสุดของ container */
+            margin-top: auto;
             display: none; /* ซ่อนไว้ก่อน จะเปิดโชว์เมื่อระบบพร้อมให้ติดตั้ง */
         }
         .status { font-size: 0.85rem; color: #757575; margin-top: 15px; margin-bottom: 10px; }
@@ -109,11 +108,10 @@
     let lastPosition = null;
     let deferredPrompt = null;
 
-    // ดักจับ Event เพื่อให้แสดงปุ่มติดตั้งแอป (PWA)
+    // ดักจับ Event สำหรับปุ่มติดตั้ง
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
-        // แสดงปุ่มติดตั้งเมื่อเบราว์เซอร์พร้อม
         document.getElementById('installBtn').style.display = 'block';
     });
 
@@ -122,7 +120,6 @@
             deferredPrompt.prompt();
             deferredPrompt.userChoice.then((choiceResult) => {
                 if (choiceResult.outcome === 'accepted') {
-                    console.log('User accepted the install prompt');
                     document.getElementById('installBtn').style.display = 'none';
                 }
                 deferredPrompt = null;
@@ -171,7 +168,6 @@
     function updateLocation(position) {
         if (!isTracking) return;
 
-        // คำนวณความเร็ว (ซ้าย)
         if (position.coords.speed !== null && position.coords.speed > 0) {
             let kmh = position.coords.speed * 3.6; 
             document.getElementById('speed').innerText = Math.round(kmh);
@@ -179,7 +175,6 @@
             document.getElementById('speed').innerText = "0";
         }
 
-        // คำนวณระยะทาง (ขวา)
         const currentPos = {
             lat: position.coords.latitude,
             lon: position.coords.longitude
@@ -199,6 +194,7 @@
         lastPosition = currentPos;
     }
 
+    // สูตร Haversine คำนวณระยะทาง
     function calculateDistance(lat1, lon1, lat2, lon2) {
         const R = 6371;
         const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -211,11 +207,12 @@
     function handleError(error) {
         console.warn('GPS Error: ' + error.message);
     }
-</script>
 
-<script>
+    // เรียกใช้งาน Service Worker ตัวจริงที่สร้างไว้บน GitHub
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdmZXRjaCcsIGV2ZW50ID0+IHt9KTs=');
+        navigator.serviceWorker.register('./sw.js')
+        .then(() => console.log('Service Worker Registered'))
+        .catch(err => console.log('Service Worker Failed', err));
     }
 </script>
 
