@@ -3,108 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rider Tracker Pro</title>
+    <title>Rider Tracker Cute-i</title>
     <link rel="manifest" href="./manifest.json">
     
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             text-align: center;
-            background-color: #121212;
+            background-color: #f0f4f8; /* สีฟ้าอมเทาพาสเทล นุ่มๆ */
             padding: 20px;
-            color: #e0e0e0;
+            color: #4a4a4a;
         }
         .container {
             max-width: 400px;
             margin: 0 auto;
-            background: #1e1e1e;
+            background: #ffffff;
             padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-            border: 1px solid #2f2f2f;
+            border-radius: 30px; /* ปรับให้โค้งมนมนเหมือนก้อนเมฆ */
+            box-shadow: 0 10px 30px rgba(180,190,200,0.4);
+            border: 4px solid #e2ebf0;
             display: flex;
             flex-direction: column;
-            min-height: 380px;
+            min-height: 420px;
+            position: relative;
+            overflow: hidden;
         }
-        h2 { margin-top: 0; margin-bottom: 20px; color: #ffffff; font-weight: 600; }
+        
+        /* ตกแต่งหัวข้อให้น่ารัก */
+        .header-area {
+            margin-bottom: 15px;
+        }
+        .cute-avatar {
+            font-size: 3rem;
+            margin-bottom: 5px;
+            animation: float 3s ease-in-out infinite;
+        }
+        h2 { 
+            margin: 0 0 15px 0; 
+            color: #6c5ce7; /* สีม่วงพาสเทลสุดน่ารัก */
+            font-weight: 700;
+            font-size: 1.8rem;
+            text-shadow: 1px 1px 0px #fff, 2px 2px 0px #e2ebf0;
+        }
+        
         .grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 15px;
         }
         .data-box {
             padding: 15px;
-            background: #2a2a2a;
-            border-radius: 12px;
-            border: 1px solid #3d3d3d;
+            background: #f7f9fc;
+            border-radius: 20px;
+            border: 2px solid #edf2f7;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
         }
         .data-box-full {
             grid-column: span 2;
+            background: #f3f0ff; /* แบ็คกราวด์สีม่วงอ่อน */
+            border-color: #e4dcff;
         }
-        .label { font-size: 0.85rem; color: #aaa; margin-bottom: 5px; }
-        .value { font-size: 1.4rem; font-weight: bold; color: #fff; }
-        .speed-highlight { color: #00b0ff; font-size: 2.5rem; }
-        .distance-highlight { color: #00e676; font-size: 2.5rem; }
+        .label { font-size: 0.9rem; color: #718096; font-weight: 600; margin-bottom: 5px; }
+        .value { font-size: 1.5rem; font-weight: bold; color: #2d3748; }
         
+        /* สีตัวเลขแบบพาสเทลหวานๆ */
+        .speed-highlight { color: #00cec9; font-size: 2.8rem; line-height: 1; margin-bottom: 2px; }
+        .distance-highlight { color: #00b894; font-size: 2.8rem; line-height: 1; margin-bottom: 2px; }
+        .time-highlight { color: #6c5ce7; }
+        
+        .unit { font-size: 0.8rem; color: #a0aec0; font-weight: bold; }
+
         button {
             width: 100%;
             padding: 16px;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             font-weight: bold;
             border: none;
-            border-radius: 12px;
+            border-radius: 20px;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.2s ease;
             margin-top: 15px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
         }
-        .btn-start { background-color: #00e676; color: #121212; }
-        .btn-stop { background-color: #ff5252; color: white; }
+        /* ปุ่มเริ่มงานสีเขียวมิ้นท์พาสเทล */
+        .btn-start { background-color: #55efc4; color: #00b894; }
+        .btn-start:active { transform: scale(0.98); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         
+        /* ปุ่มจบงานสีชมพูพาสเทล */
+        .btn-stop { background-color: #ff7675; color: white; }
+        
+        /* ปุ่มติดตั้งแอปสีครีมส้มพาสเทลละมุนๆ */
         .btn-install { 
-            background-color: #ff9100; 
-            color: #121212; 
+            background-color: #ffeaa7; 
+            color: #d63031; 
             font-size: 1rem;
             padding: 12px;
             margin-top: auto;
-            display: none; /* ซ่อนไว้ก่อน จะเปิดโชว์เมื่อ Chrome อนุญาต */
-            animation: bounce 2s infinite;
+            border: 2px dashed #fab1a0;
+            display: none; 
+            animation: cute-bounce 2s infinite;
         }
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-5px); }
-            60% { transform: translateY(-3px); }
+        
+        /* แอนิเมชันดึ๋งๆ แนวน่ารัก */
+        @keyframes cute-bounce {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-6px) scale(1.02); }
         }
-        .status { font-size: 0.85rem; color: #757575; margin-top: 15px; margin-bottom: 10px; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        
+        .status { font-size: 0.85rem; color: #a0aec0; margin-top: 15px; margin-bottom: 5px; font-weight: 500; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Rider Tracker</h2>
+    <div class="header-area">
+        <div class="cute-avatar">🛵💨🐦</div>
+        <h2>Rider Tracker Pro</h2>
+    </div>
     
     <div class="grid">
         <div class="data-box data-box-full">
-            <div class="label">⏰ เวลาเริ่มงาน</div>
-            <div id="startTime" class="value">-</div>
+            <div class="label">⏰ เวลาเริ่มงานสุดคิ้วท์</div>
+            <div id="startTime" class="value time-highlight">-</div>
         </div>
         
         <div class="data-box">
-            <div class="label">⚡ ความเร็วปัจจุบัน</div>
+            <div class="label">⚡ ความเร็วตอนนี้</div>
             <div id="speed" class="value speed-highlight">0</div>
-            <span style="font-size: 0.8rem; color:#00b0ff;">กม./ชม.</span>
+            <span class="unit">กม./ชม.</span>
         </div>
 
         <div class="data-box">
-            <div class="label">🗺️ ระยะทางรวม (KM)</div>
+            <div class="label">🗺️ ระยะทางสะสม</div>
             <div id="distance" class="value distance-highlight">0.00</div>
+            <span class="unit">กิโลเมตร</span>
         </div>
     </div>
 
-    <button id="mainBtn" class="btn-start" onclick="toggleTracking()">เริ่มงาน</button>
-    <div id="status" class="status">พร้อมลุย...</div>
+    <button id="mainBtn" class="btn-start" onclick="toggleTracking()">✨ เริ่มงานกันเลย! ✨</button>
+    <div id="status" class="status">ตื่นนอนแล้ว พร้อมลุย... 🌤️</div>
 
-    <button id="installBtn" class="btn-install" onclick="installApp()">📥 ติดตั้งแอปไว้บนมือถือ</button>
+    <button id="installBtn" class="btn-install" onclick="installApp()">ลากน้องไปไว้บนหน้าจอเถอะ 📥 กดติดตั้ง</button>
 </div>
 
 <script>
@@ -114,12 +158,10 @@
     let lastPosition = null;
     let deferredPrompt = null;
 
-    // ดักจับสัญญาณติดตั้งจากระบบ Android
     window.addEventListener('beforeinstallprompt', (e) => {
         console.log('Chrome PWA Ready!');
         e.preventDefault();
         deferredPrompt = e;
-        // บังคับเปิดปุ่มติดตั้งสีส้มให้เห็น
         document.getElementById('installBtn').style.display = 'block';
     });
 
@@ -141,12 +183,12 @@
         
         if (!isTracking) {
             if (!navigator.geolocation) {
-                alert("ระบบไม่รองรับ GPS");
+                alert("งึล.. ระบบไม่รองรับ GPS อะครับ");
                 return;
             }
 
             const now = new Date();
-            document.getElementById('startTime').innerText = now.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
+            document.getElementById('startTime').innerText = now.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) + " น.";
             
             totalDistance = 0;
             document.getElementById('distance').innerText = "0.00";
@@ -160,15 +202,15 @@
             });
 
             isTracking = true;
-            btn.innerText = "จบงาน";
+            btn.innerText = "🛑 จบงานแล้วจ้า";
             btn.className = "btn-stop";
-            statusText.innerText = "ระบบกำลังทำงานในเบื้องหลัง...";
+            statusText.innerText = "กำลังวิ่งงานสู้ชีวิตในเบื้องหลัง... 🛵🍃";
         } else {
             if (watchId) navigator.geolocation.clearWatch(watchId);
             isTracking = false;
-            btn.innerText = "เริ่มงาน";
+            btn.innerText = "✨ เริ่มงานกันเลย! ✨";
             btn.className = "btn-start";
-            statusText.innerText = "บันทึกยอดเรียบร้อย";
+            statusText.innerText = "เย้! บันทึกยอดวันนี้เรียบร้อยแล้ว 🥳";
             document.getElementById('speed').innerText = "0";
         }
     }
