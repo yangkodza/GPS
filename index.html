@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rider Tracker Pro</title>
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlJpZGVyIFRyYWNrZXIgUHJvIiwKICAic2hvcnRfbmFtZSI6ICJSaWRlciBUcmFja2VyIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMxMjEyMTIiLAogICJ0aGVtZV9jb2xvciI6IiMxMjEyMTIiCn0=">
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            background-color: #121212;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #1e1e1e;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            border: 1px solid #2f2f2f;
+            display: flex;
+            flex-direction: column;
+            min-height: 380px;
+        }
+        h2 { margin-top: 0; margin-bottom: 20px; color: #ffffff; font-weight: 600; }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .data-box {
+            padding: 15px;
+            background: #2a2a2a;
+            border-radius: 12px;
+            border: 1px solid #3d3d3d;
+        }
+        .data-box-full {
+            grid-column: span 2;
+        }
+        .label { font-size: 0.85rem; color: #aaa; margin-bottom: 5px; }
+        .value { font-size: 1.4rem; font-weight: bold; color: #fff; }
+        .speed-highlight { color: #00b0ff; font-size: 2.5rem; }
+        .distance-highlight { color: #00e676; font-size: 2.5rem; }
+        
+        button {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 15px;
+        }
+        .btn-start { background-color: #00e676; color: #121212; }
+        .btn-stop { background-color: #ff5252; color: white; }
+        
+        /* ปุ่มติดตั้งยึดให้อยู่ล่างสุด */
+        .btn-install { 
+            background-color: #ff9100; 
+            color: #121212; 
+            font-size: 1rem;
+            padding: 10px;
+            margin-top: auto; /* ดันลงไปล่างสุดของ container */
+            display: none; /* ซ่อนไว้ก่อน จะเปิดโชว์เมื่อระบบพร้อมให้ติดตั้ง */
+        }
+        .status { font-size: 0.85rem; color: #757575; margin-top: 15px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Rider Tracker</h2>
+    
+    <div class="grid">
+        <div class="data-box data-box-full">
+            <div class="label">⏰ เวลาเริ่มงาน</div>
+            <div id="startTime" class="value">-</div>
+        </div>
+        
+        <div class="data-box">
+            <div class="label">⚡ ความเร็วปัจจุบัน</div>
+            <div id="speed" class="value speed-highlight">0</div>
+            <span style="font-size: 0.8rem; color:#00b0ff;">กม./ชม.</span>
+        </div>
+
+        <div class="data-box">
+            <div class="label">🗺️ ระยะทางรวม (KM)</div>
+            <div id="distance" class="value distance-highlight">0.00</div>
+        </div>
+    </div>
+
+    <button id="mainBtn" class="btn-start" onclick="toggleTracking()">เริ่มงาน</button>
+    <div id="status" class="status">พร้อมลุย...</div>
+
+    <button id="installBtn" class="btn-install" onclick="installApp()">📥 ติดตั้งแอปไว้บนมือถือ</button>
+</div>
+
+<script>
+    let watchId = null;
+    let isTracking = false;
+    let totalDistance = 0;
+    let lastPosition = null;
+    let deferredPrompt = null;
+
+    // ดักจับ Event เพื่อให้แสดงปุ่มติดตั้งแอป (PWA)
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        // แสดงปุ่มติดตั้งเมื่อเบราว์เซอร์พร้อม
+        document.getElementById('installBtn').style.display = 'block';
+    });
+
+    function installApp() {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                    document.getElementById('installBtn').style.display = 'none';
+                }
+                deferredPrompt = null;
+            });
+        }
+    }
+
+    function toggleTracking() {
+        const btn = document.getElementById('mainBtn');
+        const statusText = document.getElementById('status');
+        
+        if (!isTracking) {
+            if (!navigator.geolocation) {
+                alert("ระบบไม่รองรับ GPS");
+                return;
+            }
+
+            const now = new Date();
+            document.getElementById('startTime').innerText = now.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
+            
+            totalDistance = 0;
+            document.getElementById('distance').innerText = "0.00";
+            document.getElementById('speed').innerText = "0";
+            lastPosition = null;
+
+            watchId = navigator.geolocation.watchPosition(updateLocation, handleError, {
+                enableHighAccuracy: true,
+                maximumAge: 0,
+                timeout: 3000
+            });
+
+            isTracking = true;
+            btn.innerText = "จบงาน";
+            btn.className = "btn-stop";
+            statusText.innerText = "ระบบกำลังทำงานในเบื้องหลัง...";
+        } else {
+            if (watchId) navigator.geolocation.clearWatch(watchId);
+            isTracking = false;
+            btn.innerText = "เริ่มงาน";
+            btn.className = "btn-start";
+            statusText.innerText = "บันทึกยอดเรียบร้อย";
+            document.getElementById('speed').innerText = "0";
+        }
+    }
+
+    function updateLocation(position) {
+        if (!isTracking) return;
+
+        // คำนวณความเร็ว (ซ้าย)
+        if (position.coords.speed !== null && position.coords.speed > 0) {
+            let kmh = position.coords.speed * 3.6; 
+            document.getElementById('speed').innerText = Math.round(kmh);
+        } else {
+            document.getElementById('speed').innerText = "0";
+        }
+
+        // คำนวณระยะทาง (ขวา)
+        const currentPos = {
+            lat: position.coords.latitude,
+            lon: position.coords.longitude
+        };
+
+        if (lastPosition !== null) {
+            const dist = calculateDistance(
+                lastPosition.lat, lastPosition.lon, 
+                currentPos.lat, currentPos.lon
+            );
+            
+            if (dist > 0.005) { 
+                totalDistance += dist;
+                document.getElementById('distance').innerText = totalDistance.toFixed(2);
+            }
+        }
+        lastPosition = currentPos;
+    }
+
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+    }
+
+    function handleError(error) {
+        console.warn('GPS Error: ' + error.message);
+    }
+</script>
+
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdmZXRjaCcsIGV2ZW50ID0+IHt9KTs=');
+    }
+</script>
+
+</body>
+</html>
