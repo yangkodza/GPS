@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rider Tracker Pro</title>
-    
-    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlJpZGVyIFRyYWNrZXIgUHJvIiwKICAic2hvcnRfbmFtZSI6ICJSaWRlciBUcmFja2VyIiwKICAic3RhcnRfdXJsIjogIi4vaW5kZXguaHRtbCIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzEyMTIxMiIsCiAgInRoZW1lX2NvbG9yIjogIiMxMjEyMTIiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUJrWVdOclpYTWdaR2xtYlhScFkyOXVJSFJvWlhSallXUjVlVzVsY25NZ2N6bHdaV2RwZ2pFeU1pQjVNUzV3YkdZZ01UQXdJQ0F4TURBZ01UQXdJQ0F4TURBZ0lIaHBiRndnTWpnd0lIZ3dNQ0IrUEM5emRtY2daR2xtYlhScFkyOXVJQ0p6Y0dGdVpVTmxjM01pSUhSeWFXNW5kR1Z5SUhCeVpXWmxjbE5vWVc1a2IzZHpJaUIyYVdWM1pYSnVZVzFsUGp3dmMzWm5QZz09IiwKICAgICAgInNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIgogICAgfQogIF0KfQ==">
+    <link rel="manifest" href="./manifest.json">
     
     <style>
         body {
@@ -66,9 +65,15 @@
             background-color: #ff9100; 
             color: #121212; 
             font-size: 1rem;
-            padding: 10px;
+            padding: 12px;
             margin-top: auto;
-            display: none;
+            display: none; /* ซ่อนไว้ก่อน จะเปิดโชว์เมื่อ Chrome อนุญาต */
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-5px); }
+            60% { transform: translateY(-3px); }
         }
         .status { font-size: 0.85rem; color: #757575; margin-top: 15px; margin-bottom: 10px; }
     </style>
@@ -109,9 +114,12 @@
     let lastPosition = null;
     let deferredPrompt = null;
 
+    // ดักจับสัญญาณติดตั้งจากระบบ Android
     window.addEventListener('beforeinstallprompt', (e) => {
+        console.log('Chrome PWA Ready!');
         e.preventDefault();
         deferredPrompt = e;
+        // บังคับเปิดปุ่มติดตั้งสีส้มให้เห็น
         document.getElementById('installBtn').style.display = 'block';
     });
 
