@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rider Tracker Pro</title>
-    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlJpZGVyIFRyYWNrZXIgUHJvIiwKICAic2hvcnRfbmFtZSI6ICJSaWRlciBUcmFja2VyIiwKICAic3RhcnRfdXJsIjogIi4vaW5kZXguaHRtbCIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzEyMTIxMiIsCiAgInRoZW1lX2NvbG9yIjogIiMxMjEyMTIiCn0=">
+    
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlJpZGVyIFRyYWNrZXIgUHJvIiwKICAic2hvcnRfbmFtZSI6ICJSaWRlciBUcmFja2VyIiwKICAic3RhcnRfdXJsIjogIi4vaW5kZXguaHRtbCIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzEyMTIxMiIsCiAgInRoZW1lX2NvbG9yIjogIiMxMjEyMTIiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUJrWVdOclpYTWdaR2xtYlhScFkyOXVJSFJvWlhSallXUjVlVzVsY25NZ2N6bHdaV2RwZ2pFeU1pQjVNUzV3YkdZZ01UQXdJQ0F4TURBZ01UQXdJQ0F4TURBZ0lIaHBiRndnTWpnd0lIZ3dNQ0IrUEM5emRtY2daR2xtYlhScFkyOXVJQ0p6Y0dGdVpVTmxjM01pSUhSeWFXNW5kR1Z5SUhCeVpXWmxjbE5vWVc1a2IzZHpJaUIyYVdWM1pYSnVZVzFsUGp3dmMzWm5QZz09IiwKICAgICAgInNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIgogICAgfQogIF0KfQ==">
     
     <style>
         body {
@@ -67,7 +68,7 @@
             font-size: 1rem;
             padding: 10px;
             margin-top: auto;
-            display: none; /* ซ่อนไว้ก่อน จะเปิดโชว์เมื่อระบบพร้อมให้ติดตั้ง */
+            display: none;
         }
         .status { font-size: 0.85rem; color: #757575; margin-top: 15px; margin-bottom: 10px; }
     </style>
@@ -108,7 +109,6 @@
     let lastPosition = null;
     let deferredPrompt = null;
 
-    // ดักจับ Event สำหรับปุ่มติดตั้ง
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
@@ -194,7 +194,6 @@
         lastPosition = currentPos;
     }
 
-    // สูตร Haversine คำนวณระยะทาง
     function calculateDistance(lat1, lon1, lat2, lon2) {
         const R = 6371;
         const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -208,7 +207,6 @@
         console.warn('GPS Error: ' + error.message);
     }
 
-    // เรียกใช้งาน Service Worker ตัวจริงที่สร้างไว้บน GitHub
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js')
         .then(() => console.log('Service Worker Registered'))
